@@ -1,4 +1,4 @@
-### ⚠️ Work in progress ⚠️
+### ⚠️ Currently under development ⚠️
 
 # PyAvatar
 

@@ -43,9 +43,8 @@ class BaseConfig:
     """Base class constants."""
 
     MIN_IMG_SIZE = 380
-    DEFAULT_OUTPUT_PATH = os.getcwd()
-    DEFAULT_FILENAME = "avatar.png"
-    AVAILABLE_FORMATS = ("jpeg", "png", "ico")
+    DEFAULT_FILEPATH = f"{os.getcwd()}/avatar.png"
+    AVAILABLE_FORMATS = (".jpeg", ".png", ".ico")
     DEFAULT_TYPO = os.path.join(os.path.dirname(__file__), "font/Lora.ttf")
 
 
@@ -107,7 +106,7 @@ class PyAvatar(BaseConfig):
             raise TypoPathError(t, "Cannot locate font file.")
         if not t.lower().endswith(".ttf"):
             raise TypoExtensionNotSupportedError(
-                t.split("/")[-1],
+                os.path.basename(t),
                 "File extension not supported, needs a Truetype font (.ttf)",
             )
         self._typo = t
@@ -148,27 +147,22 @@ class PyAvatar(BaseConfig):
         """Show a preview of the avatar in a local image viewer."""
         self.img.show()
 
-    def save(
-        self,
-        path=BaseConfig.DEFAULT_OUTPUT_PATH,
-        filename=BaseConfig.DEFAULT_FILENAME,
-    ) -> None:
+    def save(self, filepath=BaseConfig.DEFAULT_FILEPATH) -> None:
         """Save the avatar under a given output directory and name.
 
         Args:
-            path (str): Directory where to save the file.
-            filename (str): Name of file.
+            filepath (str): Filepath where the avatar will be saved.
 
         """
-        if filename.split(".")[-1].lower() not in self.AVAILABLE_FORMATS:
+        if os.path.splitext(filepath)[1] not in self.AVAILABLE_FORMATS:
             raise AvatarExtensionNotSupportedError(
-                filename,
-                "Avatar extension not supported. Supported formats: "
-                f"{self.AVAILABLE_FORMATS}",
+                os.path.basename(filepath),
+                "Extension not supported. Supported formats: png, jpeg, ico.",
             )
-        if not os.path.exists(path):
-            os.makedirs(path)
-        self.img.save(f"{path}/{filename}", optimize=True)
+        directory = os.path.dirname(filepath)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        self.img.save(filepath, optimize=True)
 
     def stream(self, filetype="png"):
         """Save the avatar in a bytes array.
@@ -177,11 +171,10 @@ class PyAvatar(BaseConfig):
             filetype (str): Avatar file format.
 
         """
-        if filetype.lower() not in self.AVAILABLE_FORMATS:
+        if f".{filetype.lower()}" not in self.AVAILABLE_FORMATS:
             raise AvatarExtensionNotSupportedError(
                 filetype,
-                "Avatar extension not supported. Supported formats: "
-                f"{self.AVAILABLE_FORMATS}",
+                "Extension not supported. Supported formats: png, jpeg, ico.",
             )
         stream = BytesIO()
         self.img.save(stream, format=filetype, optimize=True)
