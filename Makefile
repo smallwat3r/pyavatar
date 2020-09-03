@@ -23,4 +23,4 @@ env:
 	@./bin/build-env
 
 test-env:
-	@./bin/test-deps
+	@./bin/dev-deps
