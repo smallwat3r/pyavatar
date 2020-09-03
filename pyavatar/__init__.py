@@ -164,7 +164,7 @@ class PyAvatar(BaseConfig):
             os.makedirs(directory)
         self.img.save(filepath, optimize=True)
 
-    def stream(self, filetype="png"):
+    def stream(self, filetype="png") -> bytes:
         """Save the avatar in a bytes array.
 
         Args:
