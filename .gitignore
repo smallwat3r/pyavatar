@@ -1,7 +1,4 @@
 *.DS_Store
-*.png
-*.jpeg
-*.ico
 test.py
 env/
 .mypy_cache/

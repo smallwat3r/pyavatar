@@ -42,7 +42,8 @@ class AvatarExtensionNotSupportedError(PyAvatarError):
 class BaseConfig:
     """Base class constants."""
 
-    MIN_IMG_SIZE = 380
+    MIN_IMG_SIZE = 110
+    DEFAULT_IMG_SIZE = 350
     DEFAULT_FILEPATH = f"{os.getcwd()}/avatar.png"
     AVAILABLE_FORMATS = (".jpeg", ".png", ".ico")
     DEFAULT_TYPO = os.path.join(os.path.dirname(__file__), "font/Lora.ttf")
@@ -62,7 +63,7 @@ class PyAvatar(BaseConfig):
     def __init__(
         self,
         text,
-        size=BaseConfig.MIN_IMG_SIZE,
+        size=BaseConfig.DEFAULT_IMG_SIZE,
         typo=BaseConfig.DEFAULT_TYPO,
         color=None,
     ):
