@@ -8,15 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .version import __version__
 
-__all__ = (
-    "PyAvatar",
-    "PyAvatarError",
-    "RenderingSizeTooSmallError",
-    "TypoPathError",
-    "TypoExtensionNotSupported",
-    "AvatarExtensionNotSupported",
-    "__version__",
-)
+__all__ = ("PyAvatar", "__version__")
 
 
 class PyAvatarError(Exception):
