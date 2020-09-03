@@ -145,7 +145,7 @@ class PyAvatar(BaseConfig):
         self.img = self.__generate()
 
     def show(self) -> None:
-        """Show a preview of the avater in a local image viewer."""
+        """Show a preview of the avatar in a local image viewer."""
         self.img.show()
 
     def save(
@@ -157,7 +157,7 @@ class PyAvatar(BaseConfig):
 
         Args:
             path (str): Directory where to save the file.
-            filename(str): Name of file.
+            filename (str): Name of file.
 
         """
         if filename.split(".")[-1].lower() not in self.AVAILABLE_FORMATS:
@@ -171,7 +171,7 @@ class PyAvatar(BaseConfig):
         self.img.save(f"{path}/{filename}", optimize=True)
 
     def stream(self, filetype="png"):
-        """Save the avatar in bytes array.
+        """Save the avatar in a bytes array.
 
         Args:
             filetype (str): Avatar file format.

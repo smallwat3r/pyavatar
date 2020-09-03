@@ -1,4 +1,5 @@
-# Work in progress
+(⚠️ Work in progress ⚠️)
+
 # PyAvatar
 
 This library creates a default avatar from a given string such as an 

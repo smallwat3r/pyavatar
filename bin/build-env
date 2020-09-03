@@ -15,4 +15,3 @@ _init_env() {
 if [[ -z $TRAVIS ]]; then
   [[ $VIRTUAL_ENV == '' ]] && _init_env || exit 0
 fi
-
