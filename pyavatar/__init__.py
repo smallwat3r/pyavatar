@@ -42,7 +42,7 @@ class AvatarExtensionNotSupportedError(PyAvatarError):
 class BaseConfig:
     """Base class constants."""
 
-    MIN_IMG_SIZE = 110
+    MIN_IMG_SIZE = 100
     DEFAULT_IMG_SIZE = 350
     DEFAULT_FILEPATH = f"{os.getcwd()}/avatar.png"
     AVAILABLE_FORMATS = (".jpeg", ".png", ".ico")
@@ -126,7 +126,7 @@ class PyAvatar(BaseConfig):
         img = Image.new(
             mode="RGB", size=(self.size, self.size), color=self.color
         )
-        font = ImageFont.truetype(self.typo, size=int(0.7 * self.size))
+        font = ImageFont.truetype(self.typo, size=int(0.6 * self.size))
         draw = ImageDraw.Draw(img)
 
         w_txt, h_txt = draw.textsize(self.text, font)
