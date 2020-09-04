@@ -4,7 +4,7 @@
 <h3 align="center">⚠️ Currently under development ⚠️</h3>
 
 <p align="center">
-  <img src="https://github.com/smallwat3r/shhh/blob/master/pyavatar/ext/avatars.png" />
+  <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/avatars.png" />
 </p>
 
 ```python
