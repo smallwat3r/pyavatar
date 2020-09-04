@@ -27,12 +27,12 @@ class RenderingSizeTooSmallError(PyAvatarError):
     """The chosen rendering size is too small."""
 
 
-class TypoPathError(PyAvatarError):
-    """Cannot locate a file at this path."""
+class FontpathError(PyAvatarError):
+    """Cannot locate a font file at this path."""
 
 
-class TypoExtensionNotSupportedError(PyAvatarError):
-    """Typo file extension not supported."""
+class FontExtensionNotSupportedError(PyAvatarError):
+    """Font file extension not supported."""
 
 
 class AvatarExtensionNotSupportedError(PyAvatarError):
@@ -46,7 +46,7 @@ class BaseConfig:
     DEFAULT_IMG_SIZE = 350
     DEFAULT_FILEPATH = f"{os.getcwd()}/avatar.png"
     AVAILABLE_FORMATS = (".jpeg", ".png", ".ico")
-    DEFAULT_TYPO = os.path.join(os.path.dirname(__file__), "font/Lora.ttf")
+    DEFAULT_FONTPATH = os.path.join(os.path.dirname(__file__), "font/Lora.ttf")
 
 
 class PyAvatar(BaseConfig):
@@ -55,7 +55,7 @@ class PyAvatar(BaseConfig):
     Attributes:
         text (str): Input text of the avatar.
         size (int): Size in pixel of the avatar.
-        typo (str): Path to a Truetype font file.
+        fontpath (str): Path to a Truetype or Opentype font file.
         color: Avatar background color (Hex or RGB)
 
     """
@@ -64,11 +64,11 @@ class PyAvatar(BaseConfig):
         self,
         text,
         size=BaseConfig.DEFAULT_IMG_SIZE,
-        typo=BaseConfig.DEFAULT_TYPO,
+        fontpath=BaseConfig.DEFAULT_FONTPATH,
         color=None,
     ):
         self.size = size
-        self.typo = typo
+        self.fontpath = fontpath
         self.text = text
         self.color = self.__colorize() if not color else color
         self.img = self.__generate()
@@ -78,7 +78,7 @@ class PyAvatar(BaseConfig):
 
     text = property(operator.attrgetter("_text"))
     size = property(operator.attrgetter("_size"))
-    typo = property(operator.attrgetter("_typo"))
+    fontpath = property(operator.attrgetter("_fontpath"))
 
     @text.setter  # type: ignore
     def text(self, t):
@@ -98,19 +98,20 @@ class PyAvatar(BaseConfig):
             )
         self._size = s
 
-    @typo.setter  # type: ignore
-    def typo(self, t):
-        """Validate typo attribute."""
+    @fontpath.setter  # type: ignore
+    def fontpath(self, t):
+        """Validate fontpath attribute."""
         if not isinstance(t, str):
-            raise TypeError(f"Attribute ``typo`` needs to be a string.")
+            raise TypeError(f"Attribute ``fontpath`` needs to be a string.")
         if not os.path.exists(t):
-            raise TypoPathError(t, "Cannot locate font file.")
-        if not t.lower().endswith(".ttf"):
-            raise TypoExtensionNotSupportedError(
+            raise FontpathError(t, "Cannot locate font file at this location.")
+        if not t.lower().endswith(".ttf") and not t.lower().endswith(".otf"):
+            raise FontExtensionNotSupportedError(
                 os.path.basename(t),
-                "File extension not supported, needs a Truetype font (.ttf)",
+                "Font file extension not supported, needs a Truetype font"
+                " (.ttf) or an Opentype font (.otf)",
             )
-        self._typo = t
+        self._fontpath = t
 
     @staticmethod
     def __colorize() -> Tuple[int, int, int]:
@@ -126,7 +127,7 @@ class PyAvatar(BaseConfig):
         img = Image.new(
             mode="RGB", size=(self.size, self.size), color=self.color
         )
-        font = ImageFont.truetype(self.typo, size=int(0.6 * self.size))
+        font = ImageFont.truetype(self.fontpath, size=int(0.6 * self.size))
         draw = ImageDraw.Draw(img)
 
         w_txt, h_txt = draw.textsize(self.text, font)
