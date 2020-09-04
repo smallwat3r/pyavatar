@@ -15,7 +15,6 @@
 
 This package allows the creation of simple user avatars that can be 
 used in web-applications.  
-
 Avatars are generated from the first letter of a given string input.  
 
 ### Usage  
@@ -24,7 +23,7 @@ Generate an avatar
 ```python
 >>> from pyavatar import PyAvatar
 >>>
->>> avatar = PyAvatar("smallwat3r", size=250)  
+>>> avatar = PyAvatar("smallwat3r", size=250)  # use a specific size
 >>> avatar = PyAvatar("smallwat3r", color=(40, 176, 200))  # use a specific color
 >>> avatar = PyAvatar("smallwat3r", font="/Users/me/fonts/myfont.ttf")  # use a specific font
 ```
@@ -38,26 +37,27 @@ Change the avatar color
 (203, 22, 126) 
 >>> avatar.change_color("#28b0c8")  # using an hex color
 >>> avatar.color
-#28b0c8
+'#28b0c8'
 ```
 
 Save the avatar as a base64 image
 ```python
 >>> image = avatar.base64_image("jpeg")
-data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...
+'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...'
 ```
-You can then render it in an html tag
+
+You can then render it in an html tag with Jinja or another templating framework
 ```html
 <img src={{ image }} alt="my avatar" />
 ```
 
-Save the avatar as a bytes array
+Or save it as a bytes array
 ```python
 >>> avatar.stream("png")
 b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...
 ```
 
-Save the avatar as a file locally
+Or save it as a file locally
 ```python
 >>> import os
 >>> avatar.save(f"{os.getcwd()}/me.png")
