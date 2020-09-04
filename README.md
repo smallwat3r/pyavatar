@@ -29,7 +29,7 @@ print(avatar)
 avatar = PyAvatar("matt", color="#76a69a")      # hex
 avatar = PyAvatar("pat", color=(104, 232, 93))  # rgb
 
-# Get avatar in byte array
+# Save avatar in bytes array
 avatar.stream("png")
 # b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 (...)
 
