@@ -3,14 +3,9 @@
 
 <h3 align="center">⚠️ Currently under development ⚠️</h3>
 
-![](images/1.png "")
-![](images/2.png "")
-![](images/3.png "")
-![](images/4.png "")
-![](images/5.png "")
-![](images/6.png "")
-![](images/7.png "")
-![](images/8.png "")  
+<p align="center">
+  <img src="https://github.com/smallwat3r/shhh/blob/master/pyavatar/ext/avatars.png" />
+</p>
 
 ```python
 >>> from pyavatar import PyAvatar
