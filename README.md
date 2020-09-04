@@ -28,7 +28,7 @@ print(avatar)
 # S 250x250 (203, 22, 126)
 
 # Load avatar with a specific color
-avatar = PyAvatar("matt", color="#76a69a")       # hex
+avatar = PyAvatar("matt", color="#76a69a")      # hex
 avatar = PyAvatar("pat", color=(104, 232, 93))  # rgb
 
 # Get avatar in byte array
