@@ -20,6 +20,13 @@ class TestPyAvatar(unittest.TestCase):
         self.assertEqual(a.size, 200)
         self.assertEqual(a.color, (9, 9, 9))
 
+    def test_avatar_text_capitalize(self):
+        """Test capitalize text."""
+        a = PyAvatar(self.name)
+        self.assertEqual(a.text, self.name.upper()[0])
+        a = PyAvatar(self.name, capitalize=False)
+        self.assertEqual(a.text, self.name.lower()[0])
+
     def test_text_property_validation(self):
         """Test text property validation."""
         with self.assertRaises(TypeError):
@@ -56,7 +63,7 @@ class TestPyAvatar(unittest.TestCase):
         """Test save avatar locally."""
         a = PyAvatar(self.name)
         with tempfile.TemporaryDirectory() as d:
-            filepath = f"{d}/test.png"
+            filepath = f"{d}/new/test.png"
             a.save(filepath)
             self.assertTrue(os.path.isfile(filepath))
             with self.assertRaises(AvatarExtensionNotSupportedError):
@@ -68,6 +75,8 @@ class TestPyAvatar(unittest.TestCase):
         a = PyAvatar(self.name)
         stream = a.stream()
         self.assertIsInstance(stream, bytes)
+        with self.assertRaises(AvatarExtensionNotSupportedError):
+            a.stream("unknown")
 
     def test_save_base64_avatar(self):
         """Test save avatar in base64."""

@@ -120,9 +120,12 @@ class PyAvatar(BaseConfig):
     """Generate default avatars from a string input.
 
     :param text: Input text to use in the avatar.
-    :param size: (optional) Size in pixel of the avatar.
+    :param size: (optional) Integer, size in pixel of the avatar.
     :param fontpath: (optional) Filepath to the font file to use.
-    :param color: (optional) Background color (hex or rgb).
+    :param color: (optional) String (hex) or Tuple (rgb) for the background.
+    :type color: string or tuple
+    :param capitalize: (optional) Boolean, capitalize the first letter.
+    :type capitalize: bool
 
     Usage::
       >>> from pyavatar import PyAvatar
@@ -133,9 +136,9 @@ class PyAvatar(BaseConfig):
       >>> avatar.color
       (203, 22, 126)
       >>> avatar.stream("png")
-      b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...
+      b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...'
       >>> avatar.base64_image("jpeg")
-      data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...
+      'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...'
       >>> import os
       >>> avatar.save(f"{os.getcwd()}/me.png")
     """
@@ -144,8 +147,11 @@ class PyAvatar(BaseConfig):
                  text: str,
                  size: int = BaseConfig.DEFAULT_IMG_SIZE,
                  fontpath: str = BaseConfig.DEFAULT_FONTPATH,
-                 color: Union[str, Tuple[int, int, int]] = None):
+                 color: Union[str, Tuple[int, int, int]] = None,
+                 capitalize: bool = True):
         self.text = text
+        if capitalize:
+            self.text = text.upper()
         self.size = size
         self.fontpath = fontpath
         self.color = color or self._random_color()
@@ -161,7 +167,7 @@ class PyAvatar(BaseConfig):
         """Validate text attribute and isolate first letter used for avatar."""
         if not isinstance(t, str):
             raise TypeError("Attribute ``text`` needs to be an string.")
-        self._text = t[0].upper()
+        self._text = t[0]
 
     size = property(operator.attrgetter("_size"))
 
@@ -215,7 +221,8 @@ class PyAvatar(BaseConfig):
     def change_color(self, color: Union[str, Tuple[int, int, int]] = None):
         """Redraw the avatar with a new color.
 
-        :param color: (optional) Background color (hex or rgb).
+        :param color: (optional) String (hex) or Tuple (rgb) for the background.
+        :type color: string or tuple
         """
         self.color = color or self._random_color()
         self.img = self.__generate()

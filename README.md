@@ -31,6 +31,7 @@ Generate an avatar
 >>> from pyavatar import PyAvatar
 >>>
 >>> avatar = PyAvatar("smallwat3r", size=250)  # use a specific size
+>>> avatar = PyAvatar("smallwat3r", capitalize=False)  # without capitalization
 >>> avatar = PyAvatar("smallwat3r", color=(40, 176, 200))  # use a specific color
 >>> avatar = PyAvatar("smallwat3r", font="/Users/me/fonts/myfont.ttf")  # use a specific font
 ```
