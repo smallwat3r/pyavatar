@@ -10,9 +10,9 @@
 ![](images/5.png "")
 ![](images/6.png "")
 ![](images/7.png "")
-![](images/8.png "")
+![](images/8.png "")  
 
-## Usage
+## Usage  
 
 ```python
 from pyavatar import PyAvatar
