@@ -130,9 +130,9 @@ class PyAvatar(BaseConfig):
       >>> avatar.color
       (203, 22, 126)
       >>> avatar.stream("png")
-      b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 (...)
+      b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...
       >>> avatar.base64_image("jpeg")
-      data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg (...)
+      data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...
       >>> import os
       >>> avatar.save(f"{os.getcwd()}/me.png")
     """
