@@ -11,10 +11,10 @@ help: ## Show this help menu
 
 checks: pylint mypy  ## Run all checks (pylint, mypy)
 
-fmt: test-env ## Format python code with black
-	@echo "Running Black ..."
+fmt: test-env ## Format python code with yapf
+	@echo "Running Yapf ..."
 	@source env/bin/activate \
-		&& black --line-length 79 --target-version py38 $(SRC_DIR)
+		&& yapf --recursive --in-place $(SRC_DIR)
 
 pylint: test-env ## Run pylint
 	@echo "Running Pylint report ..."
