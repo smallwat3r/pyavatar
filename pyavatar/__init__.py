@@ -67,9 +67,9 @@ class PyAvatar(BaseConfig):
         fontpath=BaseConfig.DEFAULT_FONTPATH,
         color=None,
     ):
+        self.text = text
         self.size = size
         self.fontpath = fontpath
-        self.text = text
         self.color = self.__colorize() if not color else color
         self.img = self.__generate()
 
