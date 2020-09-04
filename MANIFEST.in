@@ -1,4 +1,4 @@
 include README.md LICENSE requirements.txt
-global-include *.ttf
+recursive-include pyavatar/font *
 graft tests
 global-exclude *.py[cod]

@@ -1,4 +1,4 @@
-.PHONY: help fmt checks pylint mypy test env test-env
+.PHONY: help fmt checks pylint mypy tests clean env test-env
 
 SHELL=/bin/bash
 SRC_DIR=pyavatar
@@ -29,6 +29,9 @@ mypy: env test-env ## Run mypy
 tests: env test-env ## Run unit tests
 	@echo "Running tests ..."
 	@./bin/run-tests
+
+clean: ## Clean repo
+	find . -type d -name  "__pycache__" -exec rm -r {} +
 
 env:
 	@./bin/build-env
