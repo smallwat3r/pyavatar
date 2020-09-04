@@ -1,4 +1,4 @@
 *.DS_Store
-test.py
+.coverage
 env/
 .mypy_cache/
