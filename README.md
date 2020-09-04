@@ -54,7 +54,7 @@ You can then render it in an html tag with Jinja or another template engine
 Or save it as a bytes array
 ```python
 >>> avatar.stream("png")
-b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...
+b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\xfa\x00\x00 ...'
 ```
 
 Or save it as a file locally
