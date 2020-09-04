@@ -1,4 +1,4 @@
-# pylint: disable=unsupported-membership-test
+# pylint: disable=unsupported-membership-test,too-many-arguments
 """
 Pyavatar Library
 ~~~~~~~~~~~~~~~~~
@@ -122,7 +122,7 @@ class PyAvatar(BaseConfig):
     :param text: Input text to use in the avatar.
     :param size: (optional) Integer, size in pixel of the avatar.
     :param fontpath: (optional) Filepath to the font file to use.
-    :param color: (optional) String (hex) or Tuple (rgb) for the background.
+    :param color: (optional) hex or rgb color code for the background.
     :type color: string or tuple
     :param capitalize: (optional) Boolean, capitalize the first letter.
     :type capitalize: bool
@@ -221,7 +221,7 @@ class PyAvatar(BaseConfig):
     def change_color(self, color: Union[str, Tuple[int, int, int]] = None):
         """Redraw the avatar with a new color.
 
-        :param color: (optional) String (hex) or Tuple (rgb) for the background.
+        :param color: (optional) hex or rgb color code for the background.
         :type color: string or tuple
         """
         self.color = color or self._random_color()
