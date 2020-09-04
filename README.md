@@ -46,7 +46,7 @@ Save the avatar as a base64 image
 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBg ...'
 ```
 
-You can then render it in an html tag with Jinja or another templating framework
+You can then render it in an html tag with Jinja or another template engine
 ```html
 <img src={{ image }} alt="my avatar" />
 ```
