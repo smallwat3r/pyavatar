@@ -17,6 +17,13 @@ This package allows the creation of simple user avatars that can be
 used in web-applications.  
 Avatars are generated from the first letter of a given string input.  
 
+### Installation  
+
+Pyavatar is on PyPI so all you need is:
+```sh
+pip install pyavatar
+```
+
 ### Usage  
 
 Generate an avatar  
