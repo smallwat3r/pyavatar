@@ -217,10 +217,6 @@ class PyAvatar(BaseConfig):
         self.color = color or self._random_color()
         self.img = self.__generate()
 
-    def show(self) -> None:
-        """Show a preview of the avatar in a local image viewer."""
-        self.img.show()
-
     def save(self, filepath: str = BaseConfig.DEFAULT_FILEPATH) -> None:
         """Save the avatar under a given output directory and name.
 

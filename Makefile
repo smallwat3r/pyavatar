@@ -1,4 +1,4 @@
-.PHONY: help fmt checks pylint mypy env test-env
+.PHONY: help fmt checks pylint mypy test env test-env
 
 SHELL=/bin/bash
 SRC_DIR=pyavatar
@@ -25,6 +25,10 @@ mypy: env test-env ## Run mypy
 	@echo "Running Mypy report ..."
 	@source env/bin/activate || true \
 		&& mypy --ignore-missing-imports $(SRC_DIR)
+
+tests: env test-env ## Run unit tests
+	@echo "Running tests ..."
+	@./bin/run-tests
 
 env:
 	@./bin/build-env
