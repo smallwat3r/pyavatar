@@ -12,8 +12,6 @@
 ![](images/7.png "")
 ![](images/8.png "")  
 
-## Usage  
-
 ```python
 from pyavatar import PyAvatar
 
