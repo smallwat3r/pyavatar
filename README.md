@@ -4,6 +4,11 @@
 <h3 align="center">⚠️ Currently under development ⚠️</h3>
 
 <p align="center">
+  <a href="https://travis-ci.com/smallwat3r/pyavatar" rel="nofollow"><img src="https://travis-ci.com/smallwat3r/pyavatar.svg?branch=master" style="max-width:100%;"></a>
+  <a href="https://codecov.io/gh/smallwat3r/pyavatar" rel="nofollow"><img src="https://codecov.io/gh/smallwat3r/pyavatar/branch/master/graph/badge.svg" style="max-width:100%;"></a>
+</p>
+
+<p align="center">
   <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/avatars.png" />
 </p>
 
