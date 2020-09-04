@@ -1,9 +1,7 @@
-### ⚠️ Currently under development ⚠️
+<h3 align="center">⚠️ Currently under development ⚠️</h3>
 
-# PyAvatar
-
-This library creates a default avatar from a given string such as an 
-username or an email address.
+<h3 align="center">pyavatar</h3>
+<p align="center">Create default user avatars from a given string</p>
 
 ![](images/1.png "")
 ![](images/2.png "")
