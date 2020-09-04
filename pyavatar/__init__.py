@@ -1,3 +1,4 @@
+# pylint: disable=unsupported-membership-test
 """
 Pyavatar Library
 ~~~~~~~~~~~~~~~~~
@@ -72,11 +73,13 @@ class BaseValidators(enum.Enum):
     """Base enum class for validators."""
 
     @classproperty
-    def list(cls):
+    def list(cls):  # pylint: disable=no-self-argument
+        """Build a list of values."""
         return [ext.value for ext in cls]
 
     @classproperty
-    def csv(cls):
+    def csv(cls):  # pylint: disable=no-self-argument
+        """Build a comma separated list of values."""
         return ", ".join(cls.list)
 
 

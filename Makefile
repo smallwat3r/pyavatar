@@ -9,7 +9,7 @@ help: ## Show this help menu
 	@grep --no-filename -E '^[a-zA-Z_%-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "%-10s %s\n", $$1, $$2}'
 
-checks: pylint mypy  ## Run all checks (pylint, mypy)
+checks: tests pylint mypy  ## Run all checks (tests, pylint, mypy)
 
 fmt: test-env ## Format python code with yapf
 	@echo "Running Yapf ..."
