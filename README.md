@@ -2,10 +2,10 @@
 <p align="center">Create default user avatars from a given string</p>
 
 <p align="center">
-  <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/1.png" />
-  <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/2.png" />
-  <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/3.png" />
-  <img src="https://github.com/smallwat3r/pyavatar/blob/master/ext/4.png" />
+  <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/blob/master/ext/1.png" />
+  <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/blob/master/ext/2.png" />
+  <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/blob/master/ext/3.png" />
+  <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/blob/master/ext/4.png" />
 </p>
 
 <p align="center">

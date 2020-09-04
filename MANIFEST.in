@@ -1,2 +1,3 @@
 include README.md LICENSE requirements.txt
 graft tests
+prune *.pyc
