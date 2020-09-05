@@ -11,6 +11,8 @@
 <p align="center">
   <a href="https://travis-ci.com/smallwat3r/pyavatar" rel="nofollow"><img src="https://travis-ci.com/smallwat3r/pyavatar.svg?branch=master" style="max-width:100%;"></a>
   <a href="https://codecov.io/gh/smallwat3r/pyavatar" rel="nofollow"><img src="https://codecov.io/gh/smallwat3r/pyavatar/branch/master/graph/badge.svg" style="max-width:100%;"></a>
+  <a href="https://pypi.org/project/pyavatar" rel="nofollow"><img src="https://img.shields.io/pypi/wheel/pyavatar.svg" style="max-width:100%;"></a>
+  <a href="https://github.com/smallwat3r/pyavatar/blob/master/LICENSE" rel="nofollow"><img src="https://img.shields.io/badge/License-MIT-green.svg" style="max-width:100%;"></a>
 </p>
 
 This package allows the creation of simple user avatars that can be 
