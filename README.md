@@ -5,7 +5,6 @@
   <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/master/ext/1.png" />
   <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/master/ext/2.png" />
   <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/master/ext/3.png" />
-  <img src="https://raw.githubusercontent.com/smallwat3r/pyavatar/master/ext/4.png" />
 </p>
 
 <p align="center">
