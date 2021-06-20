@@ -14,8 +14,7 @@
   <a href="https://github.com/smallwat3r/pyavatar/blob/master/LICENSE" rel="nofollow"><img src="https://img.shields.io/badge/License-MIT-green.svg" style="max-width:100%;"></a>
 </p>
 
-This package allows the creation of simple user avatars that can be 
-used in web-applications.  
+This package creates simple user avatars that can be used in web-applications.  
 Avatars are generated from the first letter of a given string input.  
 
 ### Installation  
@@ -44,7 +43,7 @@ Change the avatar color
 >>> avatar.change_color()  # random color
 >>> avatar.color
 (203, 22, 126) 
->>> avatar.change_color("#28b0c8")  # using an hex color
+>>> avatar.change_color("#28b0c8")  # using an hex color code
 >>> avatar.color
 '#28b0c8'
 ```
@@ -57,7 +56,7 @@ Save the avatar as a base64 image
 
 You can then render it in an html tag with Jinja or another template engine
 ```html
-<img src={{ image }} alt="my avatar" />
+<img src="{{ image }}" alt="My avatar" />
 ```
 
 Or save it as a bytes array
