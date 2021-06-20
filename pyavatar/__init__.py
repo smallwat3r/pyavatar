@@ -69,7 +69,7 @@ def classproperty(func):
     return ClassPropertyDescriptor(func)
 
 
-class BaseValidators(enum.Enum):
+class BaseValidators:
     """Base enum class for validators."""
 
     @classproperty
@@ -83,8 +83,7 @@ class BaseValidators(enum.Enum):
         return ", ".join(cls.list)
 
 
-@enum.unique
-class ValidImgFormats(BaseValidators):
+class ValidImgFormats(BaseValidators, enum.Enum):
     """Avatar supported formats."""
 
     PNG = "png"
@@ -92,16 +91,14 @@ class ValidImgFormats(BaseValidators):
     ICO = "ico"
 
 
-@enum.unique
-class ValidFontFormats(BaseValidators):
+class ValidFontFormats(BaseValidators, enum.Enum):
     """Font supported formats."""
 
     TTF = ".ttf"
     OTF = ".otf"
 
 
-@enum.unique
-class ValidPixelRange(BaseValidators):
+class ValidPixelRange(BaseValidators, enum.IntEnum):
     """Avatar pixel size."""
 
     MIN = 50
@@ -176,7 +173,7 @@ class PyAvatar(BaseConfig):
         """Validate size attribute."""
         if not isinstance(s, int):
             raise TypeError("Attribute ``size`` needs to be an integer.")
-        if s < ValidPixelRange.MIN.value or s > ValidPixelRange.MAX.value:
+        if s < ValidPixelRange.MIN or s > ValidPixelRange.MAX:
             raise RenderingSizeError(
                 s, f"Rendering size must in range {ValidPixelRange.list}")
         self._size = s
