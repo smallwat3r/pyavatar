@@ -8,7 +8,6 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.com/smallwat3r/pyavatar" rel="nofollow"><img src="https://travis-ci.com/smallwat3r/pyavatar.svg?branch=master" style="max-width:100%;"></a>
   <a href="https://codecov.io/gh/smallwat3r/pyavatar" rel="nofollow"><img src="https://codecov.io/gh/smallwat3r/pyavatar/branch/master/graph/badge.svg" style="max-width:100%;"></a>
   <a href="https://pypi.org/project/pyavatar" rel="nofollow"><img src="https://img.shields.io/pypi/wheel/pyavatar.svg" style="max-width:100%;"></a>
   <a href="https://github.com/smallwat3r/pyavatar/blob/master/LICENSE" rel="nofollow"><img src="https://img.shields.io/badge/License-MIT-green.svg" style="max-width:100%;"></a>
@@ -17,14 +16,14 @@
 This package creates simple user avatars that can be used in web-applications.  
 Avatars are generated from the first letter of a given string input.  
 
-### Installation  
+### Installation
 
 Pyavatar is on PyPI so all you need is:
-```sh
+```
 pip install pyavatar
 ```
 
-### Usage  
+### Usage
 
 Generate an avatar  
 ```python
@@ -69,4 +68,42 @@ Or save it as a file locally
 ```python
 >>> import os
 >>> avatar.save(f"{os.getcwd()}/me.png")
+```
+
+### Development
+
+#### Requirements
+
+Make sure you have Python3.10 installed locally.
+
+Create a virtual environment and install the dependencies
+```
+make venv deps
+```
+
+#### Sanity checks
+
+Run tests 
+```
+make tests
+```
+
+Run mypy 
+```
+make mypy
+```
+
+Run pylint 
+```
+make pylint
+```
+
+Run all the above:
+```
+make ci
+```
+
+We're using YAPF to format the code:
+```
+make yapf
 ```

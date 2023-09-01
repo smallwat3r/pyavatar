@@ -1,4 +1,14 @@
 [MESSAGES CONTROL]
 max-line-length=79
 ignored-argument-names=arg|args|kw|kwargs
-disable=bad-continuation,missing-module-docstring,invalid-name,too-few-public-methods,import-error,import-outside-toplevel,no-member,inconsistent-return-statements,f-string-without-interpolation,too-many-instance-attributes
+disable=missing-module-docstring,
+        missing-function-docstring,
+        missing-class-docstring,
+        invalid-name,
+        too-few-public-methods,
+        import-error,
+        import-outside-toplevel,
+        no-member,
+        inconsistent-return-statements,
+        f-string-without-interpolation,
+        too-many-instance-attributes
