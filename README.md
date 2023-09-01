@@ -74,36 +74,44 @@ Or save it as a file locally
 
 #### Requirements
 
-Make sure you have Python3.10 installed locally.
+Make sure you're using a version of Python >= 3.10
 
-Create a virtual environment and install the dependencies
-```
-make venv deps
-```
+- Create a virtual environment and install the dependencies
+  ```
+  make venv deps
+  ```
 
 #### Sanity checks
 
-Run tests 
-```
-make tests
-```
+- Unit tests
+  ```
+  make tests
+  ```
 
-Run mypy 
-```
-make mypy
-```
+- Mypy 
+  ```
+  make mypy
+  ```
 
-Run pylint 
-```
-make pylint
-```
+- Pylint 
+  ```
+  make pylint
+  ```
 
-Run all the above:
-```
-make ci
-```
+- Run all the above
+  ```
+  make ci
+  ```
 
-We're using YAPF to format the code:
+#### Code formatting
+
+ We're using [YAPF](https://github.com/google/yapf) to format the code
 ```
 make yapf
+```
+
+#### Release to Pypi
+
+```
+make release
 ```
