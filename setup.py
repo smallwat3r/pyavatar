@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 g = {}
-with open(os.path.join("pyavatar", "version.py"), "rt") as fp:
+with open(os.path.join("pyavatar", "_version.py"), "rt") as fp:
     exec(fp.read(), g)
     version = g["__version__"]
 
