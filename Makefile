@@ -52,3 +52,8 @@ pylint:  ## Run pylint
 mypy:  ## Run mypy
 	@echo "Running Mypy report ..."
 	$(PYTHON) -m mypy --ignore-missing-imports $(SRC_DIR)
+
+.PHONY: release
+release:  ## Release to Pypi
+	$(PYTHON) setup.py sdist
+	$(PYTHON) -m twine upload dist/*
