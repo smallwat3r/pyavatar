@@ -56,5 +56,5 @@ mypy:  ## Run mypy
 .PHONY: release
 release:  ## Release to Pypi
 	rm -rf dist pyavatar.egg_info || true
-	$(PYTHON) setup.py sdist
+	$(PYTHON) setup.py sdist bdist_wheel
 	$(PYTHON) -m twine upload dist/*
