@@ -32,6 +32,7 @@ __all__ = ("PyAvatar",
 
 
 class PyAvatarError(Exception):
+    """Base PyAvatar error."""
 
     def __init__(self,
                  value: str,
