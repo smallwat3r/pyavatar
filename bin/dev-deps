@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# Install dev / tests requirements
-set -e
-
-if [[ -z $TRAVIS ]]; then
-  source env/bin/activate
-fi
-
-pip install -r dev-requirements.txt >/dev/null 2>&1
