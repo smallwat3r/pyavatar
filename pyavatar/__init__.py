@@ -34,17 +34,14 @@ __all__ = ("PyAvatar",
 class PyAvatarError(Exception):
     """Base PyAvatar error."""
 
-    def __init__(self,
-                 value: str,
-                 message: str | None = None,
-                 info: str = "") -> None:
+    def __init__(self, value: str, message: str = "", info: str = "") -> None:
         self.value = value
         self.message = message or self.__doc__
         self.info = info
         super().__init__(self.message)
 
     def __str__(self) -> str:
-        return f"{self.value} -> {self.message} {self.info}"
+        return f"{self.value} -> {self.message} {self.info}".strip()
 
 
 class RenderingSizeError(PyAvatarError):
@@ -230,8 +227,7 @@ class PyAvatar:
         """
         if filetype.lower() not in set(SupportedImageFmt):
             raise ImageExtensionNotSupportedError(
-                filetype,
-                info=f"Supported formats: {csv(SupportedImageFmt)}.")
+                filetype, info=f"Supported formats: {csv(SupportedImageFmt)}.")
         stream = BytesIO()
         self.image.save(stream, format=filetype.value, optimize=True)
         return stream.getvalue()

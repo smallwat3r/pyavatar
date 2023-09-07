@@ -36,7 +36,7 @@ ci: tests ruff mypy  ## Run all checks (tests, pylint, mypy etc.)
 .PHONY: tests
 tests:  ## Run tests from virtual environment
 	@echo "Running tests..."
-	$(PYTHON) -m unittest discover -s './tests' -p 'test_*.py' -v
+	$(PYTHON) -m pytest $(TEST_DIR)
 
 .PHONY: yapf
 yapf:  ## Format python code with yapf

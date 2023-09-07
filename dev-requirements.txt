@@ -3,3 +3,4 @@ ruff
 twine
 wheel
 yapf
+pytest
