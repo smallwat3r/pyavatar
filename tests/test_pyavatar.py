@@ -7,7 +7,7 @@ from pyavatar import (FontExtensionNotSupportedError,
                       ImageExtensionNotSupportedError,
                       PyAvatar,
                       RenderingSizeError,
-                      SupportedImageFormat,
+                      SupportedImageFmt,
                       SupportedPixelRange,
                       )
 
@@ -85,7 +85,7 @@ class TestPyAvatar(unittest.TestCase):
     def test_save_base64_avatar(self):
         """Test save avatar in base64."""
         avatar = PyAvatar(self.name)
-        for format in SupportedImageFormat.get_set():
+        for format in set(SupportedImageFmt):
             image = avatar.base64_image(format)
             self.assertIsInstance(image, str)
             self.assertIn(format, image[:20])

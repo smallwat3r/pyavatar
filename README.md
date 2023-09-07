@@ -110,7 +110,7 @@ Make sure you're using a version of Python >= 3.10
 make yapf
 ```
 
-#### Release to Pypi
+#### Release to PyPI
 
 ```
 make release

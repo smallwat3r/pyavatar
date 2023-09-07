@@ -20,12 +20,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt -r dev-requirements.txt
-    - name: Lint with Pylint
+    - name: Lint with Ruff
       run: |
-        pylint --rcfile=.pylintrc pyavatar
+        ruff pyavatar
     - name: Run Mypy
       run: |
-        mypy --ignore-missing-imports pyavatar
+        mypy pyavatar
     - name: Run test suite
       run: |
         pip install codecov

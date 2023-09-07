@@ -63,29 +63,23 @@ class ImageExtensionNotSupportedError(PyAvatarError):
     """Image extension not supported."""
 
 
-class _BaseEnumUtils:
-
-    @classmethod
-    def get_set(cls) -> set[str]:
-        return {attribute.value for attribute in cls}  # type: ignore # pylint: disable=not-an-iterable
-
-    @classmethod
-    def get_csv(cls) -> str:
-        return ", ".join(cls.get_set())
+def csv(str_enum: type[Enum]) -> str:
+    assert issubclass(str_enum, str) and issubclass(str_enum, Enum)
+    return ", ".join(list(str_enum))
 
 
-class SupportedImageFormat(_BaseEnumUtils, str, Enum):
+class SupportedImageFmt(str, Enum):
     PNG = "png"
     JPEG = "jpeg"
     ICO = "ico"
 
 
-class SupportedFontFormat(_BaseEnumUtils, str, Enum):
+class SupportedFontExt(str, Enum):
     TTF = ".ttf"
     OTF = ".otf"
 
 
-class SupportedPixelRange(_BaseEnumUtils, IntEnum):
+class SupportedPixelRange(IntEnum):
     MIN = 50
     MAX = 650
 
@@ -151,7 +145,7 @@ class PyAvatar:
     def text(self, value: str) -> None:
         if not isinstance(value, str):
             raise TypeError("Attribute `text` must be a string.")
-        self._text = value[0]  # keep the first letter
+        self._text = value[0]  # only care about the first character
 
     @property
     def size(self) -> int:
@@ -162,9 +156,10 @@ class PyAvatar:
         if not isinstance(value, int):
             raise TypeError("Attribute `size` must be an integer.")
         if value < SupportedPixelRange.MIN or value > SupportedPixelRange.MAX:
-            raise RenderingSizeError(
-                str(value),
-                f"Size must fit in range {SupportedPixelRange.get_set()}.")
+            raise RenderingSizeError(str(value),
+                                     ("Size must fit within range "
+                                      f"min={SupportedPixelRange.MIN} "
+                                      f"max={SupportedPixelRange.MAX}."))
         self._size = value
 
     @property
@@ -177,11 +172,10 @@ class PyAvatar:
             raise TypeError("Attribute `fontpath` must be a string.")
         if not os.path.exists(value):
             raise FontpathError(value)
-        if not value.lower().endswith(
-            (SupportedFontFormat.TTF, SupportedFontFormat.OTF)):
+        if not value.lower().endswith(tuple(SupportedFontExt)):
             raise FontExtensionNotSupportedError(
                 os.path.basename(value),
-                info=f"Supported formats: {SupportedFontFormat.get_csv()}.")
+                info=f"Supported extensions: {csv(SupportedFontExt)}.")
         self._fontpath = value
 
     @staticmethod
@@ -218,35 +212,33 @@ class PyAvatar:
         :param filepath: (optional) Filepath where the avatar will be saved.
         """
         extension = os.path.splitext(filepath)[1].split(".")[1]
-        if extension not in SupportedImageFormat.get_set():
+        if extension not in set(SupportedImageFmt):
             raise ImageExtensionNotSupportedError(
                 os.path.basename(filepath),
-                info=f"Supported formats: {SupportedImageFormat.get_csv()}.")
+                info=f"Supported formats: {csv(SupportedImageFmt)}.")
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
             os.makedirs(directory)
         self.image.save(filepath, optimize=True)
 
-    def stream(
-            self,
-            filetype: SupportedImageFormat = SupportedImageFormat.PNG
-    ) -> bytes:
+    def stream(self,
+               filetype: SupportedImageFmt = SupportedImageFmt.PNG) -> bytes:
         """Save the avatar in a bytes array.
 
         :param filetype: (optional) Avatar file format.
         :rtype: bytes
         """
-        if filetype.lower() not in SupportedImageFormat.get_set():
+        if filetype.lower() not in set(SupportedImageFmt):
             raise ImageExtensionNotSupportedError(
                 filetype,
-                info=f"Supported formats: {SupportedImageFormat.get_csv()}.")
+                info=f"Supported formats: {csv(SupportedImageFmt)}.")
         stream = BytesIO()
         self.image.save(stream, format=filetype, optimize=True)
         return stream.getvalue()
 
-    def base64_image(
-            self,
-            filetype: SupportedImageFormat = SupportedImageFormat.PNG) -> str:
+    def base64_image(self,
+                     filetype: SupportedImageFmt = SupportedImageFmt.PNG
+                     ) -> str:
         """Save the avatar as a base64 image.
 
         :param filetype: (optional) Avatar file format.
