@@ -233,7 +233,7 @@ class PyAvatar:
                 filetype,
                 info=f"Supported formats: {csv(SupportedImageFmt)}.")
         stream = BytesIO()
-        self.image.save(stream, format=filetype, optimize=True)
+        self.image.save(stream, format=filetype.value, optimize=True)
         return stream.getvalue()
 
     def base64_image(self,
@@ -245,4 +245,4 @@ class PyAvatar:
         :rtype: str
         """
         encoded_image = b64encode(self.stream(filetype)).decode("utf-8")
-        return f"data:image/{filetype};base64,{encoded_image}"
+        return f"data:image/{filetype.value};base64,{encoded_image}"
