@@ -31,26 +31,26 @@ deps:  ## Install Python requirements in virtual environment
 	$(PYTHON) -m pip install -r requirements.txt -r dev-requirements.txt
 
 .PHONY: ci
-ci: tests pylint mypy  ## Run all checks (tests, pylint, mypy etc.)
+ci: tests ruff mypy  ## Run all checks (tests, pylint, mypy etc.)
 
 .PHONY: tests
 tests:  ## Run tests from virtual environment
-	@echo "Running tests ..."
-	$(PYTHON) -m unittest discover -s './tests' -p 'test_*.py' -v
+	@echo "Running tests..."
+	$(PYTHON) -m pytest $(TEST_DIR)
 
 .PHONY: yapf
 yapf:  ## Format python code with yapf
-	@echo "Running Yapf ..."
+	@echo "Running Yapf..."
 	$(PYTHON) -m yapf --recursive --in-place $(SRC_DIR) $(TEST_DIR)
 
-.PHONY: pylint
-pylint:  ## Run pylint
-	@echo "Running Pylint report ..."
-	$(PYTHON) -m pylint --rcfile=.pylintrc $(SRC_DIR)
+.PHONY: ruff
+ruff:  ## Run ruff
+	@echo "Running Ruff report..."
+	$(PYTHON) -m ruff $(SRC_DIR) $(TEST_DIR)
 
 .PHONY: mypy
 mypy:  ## Run mypy
-	@echo "Running Mypy report ..."
+	@echo "Running Mypy report..."
 	$(PYTHON) -m mypy --ignore-missing-imports $(SRC_DIR)
 
 .PHONY: release

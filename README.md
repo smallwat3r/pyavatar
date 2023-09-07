@@ -18,7 +18,7 @@ Avatars are generated from the first letter of a given string input.
 
 ### Installation
 
-Pyavatar is on PyPI so all you need is:
+Pyavatar is on Pypi so all you need is:
 ```
 pip install pyavatar
 ```
