@@ -93,9 +93,9 @@ Make sure you're using a version of Python >= 3.10
   make mypy
   ```
 
-- Pylint 
+- Ruff 
   ```
-  make pylint
+  make ruff
   ```
 
 - Run all the above
