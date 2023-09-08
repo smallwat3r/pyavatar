@@ -31,7 +31,7 @@ deps:  ## Install Python requirements in virtual environment
 	$(PYTHON) -m pip install -r requirements.txt -r dev-requirements.txt
 
 .PHONY: ci
-ci: tests ruff mypy  ## Run all checks (tests, pylint, mypy etc.)
+ci: tests ruff mypy  ## Run all checks (tests, ruff, mypy etc.)
 
 .PHONY: tests
 tests:  ## Run tests from virtual environment

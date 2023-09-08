@@ -1,4 +1,3 @@
-# pylint: disable=unsupported-membership-test,too-many-arguments
 """
 Pyavatar Library
 ~~~~~~~~~~~~~~~~
