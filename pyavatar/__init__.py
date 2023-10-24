@@ -186,8 +186,8 @@ class PyAvatar:
                           color=self.color)
         font = ImageFont.truetype(self.fontpath, size=int(0.6 * self.size))
         draw = ImageDraw.Draw(image)
-        w_txt, h_txt = draw.textsize(self.text, font)
-        off_x, off_y = font.getoffset(self.text)
+        _, _, w_txt, h_txt = draw.textbbox((0, 0), self.text, font)
+        off_x, off_y, _, _ = font.getbbox(self.text)
         position = ((self.size / 2 - (w_txt + off_x) / 2),
                     (self.size / 2 - (h_txt + off_y) / 2))
         draw.text(position, self.text, font=font)
