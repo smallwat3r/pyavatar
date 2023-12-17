@@ -13,7 +13,7 @@ help:  ## Show this help menu
 clean:  ## Clean repo
 	find . -type d -name  "__pycache__" -exec rm -r {} +
 
-VENV          = venv
+VENV          = .venv
 VENV_PYTHON   = $(VENV)/bin/python
 SYSTEM_PYTHON = $(or $(shell which python3.10), $(shell which python))
 PYTHON        = $(or $(wildcard $(VENV_PYTHON)), $(SYSTEM_PYTHON))
