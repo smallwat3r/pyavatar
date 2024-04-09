@@ -180,7 +180,7 @@ class PyAvatar:
                 random.randint(0, 255),
                 random.randint(0, 255))
 
-    def __generate_avatar(self) -> Image:
+    def __generate_avatar(self) -> Image.Image:
         image = Image.new(mode="RGB",
                           size=(self.size, self.size),
                           color=self.color)
