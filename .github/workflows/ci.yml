@@ -22,7 +22,7 @@ jobs:
         pip install -e . -r dev-requirements.txt
     - name: Lint with Ruff
       run: |
-        ruff pyavatar
+        ruff check pyavatar
     - name: Run Mypy
       run: |
         mypy pyavatar
