@@ -7,6 +7,7 @@ import pytest
 from pyavatar import (FontExtensionNotSupportedError,
                       FontpathError,
                       ImageExtensionNotSupportedError,
+                      InvalidColorError,
                       PyAvatar,
                       RenderingSizeError,
                       SupportedImageFmt,
@@ -124,3 +125,47 @@ def test_save_avatar_as_base64(format: str):
     image = avatar.base64_image(format)
     assert isinstance(image, str)
     assert format in image[:20]
+
+
+def test_avatar_str_representation() -> None:
+    avatar = PyAvatar("smallwat3r", size=120, color=(255, 128, 0))
+    assert str(avatar) == "S 120x120 (255, 128, 0)"
+
+
+def test_color_validation() -> None:
+    # Valid hex colors
+    avatar = PyAvatar("test", color="#FFF")
+    assert avatar.color == "#FFF"
+
+    avatar = PyAvatar("test", color="#FFFFFF")
+    assert avatar.color == "#FFFFFF"
+
+    # Valid RGB colors
+    avatar = PyAvatar("test", color=(0, 0, 0))
+    assert avatar.color == (0, 0, 0)
+
+    avatar = PyAvatar("test", color=(255, 255, 255))
+    assert avatar.color == (255, 255, 255)
+
+    # Invalid hex colors
+    with pytest.raises(InvalidColorError) as excinfo:
+        PyAvatar("test", color="FFF")
+    assert "Hex color must be in format '#RGB' or '#RRGGBB'" in str(excinfo.value)
+
+    with pytest.raises(InvalidColorError) as excinfo:
+        PyAvatar("test", color="#FF")
+    assert "Hex color must be in format '#RGB' or '#RRGGBB'" in str(excinfo.value)
+
+    # Invalid RGB colors
+    with pytest.raises(InvalidColorError) as excinfo:
+        PyAvatar("test", color=(256, 0, 0))
+    assert "RGB color must be a tuple of 3 integers (0-255)" in str(excinfo.value)
+
+    with pytest.raises(InvalidColorError) as excinfo:
+        PyAvatar("test", color=(0, 0))
+    assert "RGB color must be a tuple of 3 integers (0-255)" in str(excinfo.value)
+
+    # Invalid type
+    with pytest.raises(InvalidColorError) as excinfo:
+        PyAvatar("test", color=123)
+    assert "Color must be a hex string or RGB tuple" in str(excinfo.value)

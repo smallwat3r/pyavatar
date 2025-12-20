@@ -27,6 +27,8 @@ __all__ = ("PyAvatar",
            "FontpathError",
            "FontExtensionNotSupportedError",
            "ImageExtensionNotSupportedError",
+           "InvalidColorError",
+           "FontLoadError",
            )
 
 
@@ -59,6 +61,14 @@ class ImageExtensionNotSupportedError(PyAvatarError):
     """Image extension not supported."""
 
 
+class InvalidColorError(PyAvatarError):
+    """Invalid color format."""
+
+
+class FontLoadError(PyAvatarError):
+    """Failed to load font file."""
+
+
 def csv(str_enum: type[Enum]) -> str:
     assert issubclass(str_enum, str) and issubclass(str_enum, Enum)
     return ", ".join(list(str_enum))
@@ -81,7 +91,6 @@ class SupportedPixelRange(IntEnum):
 
 
 _DEFAULT_IMAGE_SIZE = 120
-_DEFAULT_FILEPATH = f"{os.getcwd()}/avatar.png"
 _DEFAULT_FONT_FILEPATH = os.path.join(os.path.dirname(__file__),
                                       "font/Lora.ttf")
 
@@ -95,8 +104,9 @@ class PyAvatar:
     :param text: Input text to use in the avatar.
     :param size: (optional) Integer, size in pixel of the avatar.
     :param fontpath: (optional) Filepath to the font file to use.
-    :param color: (optional) hex or rgb color code for the background.
-    :type color: string or tuple
+    :param color: (optional) Background color as hex string ('#RGB' or
+        '#RRGGBB') or RGB tuple (r, g, b) with values 0-255.
+    :type color: str or tuple[int, int, int]
     :param capitalize: (optional) Boolean, capitalize the first letter.
     :type capitalize: bool
 
@@ -174,6 +184,29 @@ class PyAvatar:
                 info=f"Supported extensions: {csv(SupportedFontExt)}.")
         self._fontpath = value
 
+    @property
+    def color(self) -> _HexColor | _RGBColor:
+        return self._color
+
+    @color.setter
+    def color(self, value: _HexColor | _RGBColor) -> None:
+        if isinstance(value, str):
+            if not value.startswith("#") or len(value) not in (4, 7):
+                raise InvalidColorError(
+                    value,
+                    message="Hex color must be in format '#RGB' or '#RRGGBB'.")
+        elif isinstance(value, tuple):
+            if len(value) != 3 or not all(
+                    isinstance(c, int) and 0 <= c <= 255 for c in value):
+                raise InvalidColorError(
+                    str(value),
+                    message="RGB color must be a tuple of 3 integers (0-255).")
+        else:
+            raise InvalidColorError(
+                str(value),
+                message="Color must be a hex string or RGB tuple.")
+        self._color = value
+
     @staticmethod
     def _random_color() -> _RGBColor:
         return (random.randint(0, 255),
@@ -184,7 +217,11 @@ class PyAvatar:
         image = Image.new(mode="RGB",
                           size=(self.size, self.size),
                           color=self.color)
-        font = ImageFont.truetype(self.fontpath, size=int(0.6 * self.size))
+        try:
+            font = ImageFont.truetype(self.fontpath, size=int(0.6 * self.size))
+        except OSError as e:
+            raise FontLoadError(self.fontpath,
+                                message="Failed to load font file.") from e
         draw = ImageDraw.Draw(image)
         _, _, w_txt, h_txt = draw.textbbox((0, 0), self.text, font)
         off_x, off_y, _, _ = font.getbbox(self.text)
@@ -196,25 +233,26 @@ class PyAvatar:
     def change_color(self, color: _HexColor | _RGBColor | None = None) -> None:
         """Redraw the avatar with a new background color.
 
-        :param color: (optional) hex or rgb color code for the background.
-        :type color: string or tuple
+        :param color: (optional) Background color as hex string ('#RGB' or
+            '#RRGGBB') or RGB tuple (r, g, b) with values 0-255.
+        :type color: str or tuple[int, int, int]
         """
         self.color = color or self._random_color()
         self.image = self.__generate_avatar()
 
-    def save(self, filepath: str = _DEFAULT_FILEPATH) -> None:
+    def save(self, filepath: str) -> None:
         """Save the avatar under a given file path.
 
-        :param filepath: (optional) Filepath where the avatar will be saved.
+        :param filepath: Filepath where the avatar will be saved.
         """
-        extension = os.path.splitext(filepath)[1].split(".")[1]
+        extension = os.path.splitext(filepath)[1].lstrip(".")
         if extension not in set(SupportedImageFmt):
             raise ImageExtensionNotSupportedError(
                 os.path.basename(filepath),
                 info=f"Supported formats: {csv(SupportedImageFmt)}.")
         directory = os.path.dirname(filepath)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         self.image.save(filepath, optimize=True)
 
     def stream(self,
