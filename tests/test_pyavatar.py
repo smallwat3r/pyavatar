@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from pyavatar import (FontExtensionNotSupportedError,
+                      FontLoadError,
                       FontpathError,
                       ImageExtensionNotSupportedError,
                       InvalidColorError,
@@ -169,3 +170,16 @@ def test_color_validation() -> None:
     with pytest.raises(InvalidColorError) as excinfo:
         PyAvatar("test", color=123)
     assert "Color must be a hex string or RGB tuple" in str(excinfo.value)
+
+
+def test_corrupted_font_file() -> None:
+    with tempfile.NamedTemporaryFile(suffix=".ttf", delete=False) as f:
+        f.write(b"not a valid font file")
+        temp_path = f.name
+
+    try:
+        with pytest.raises(FontLoadError) as excinfo:
+            PyAvatar("test", fontpath=temp_path)
+        assert "Failed to load font file" in str(excinfo.value)
+    finally:
+        os.unlink(temp_path)
