@@ -181,7 +181,7 @@ raise a `TypeError`.
 ...     PyAvatar("smallwat3r", size=10)
 ... except PyAvatarError as e:
 ...     print(e)
-10 -> Size must fit within range min=50 max=650.
+Size must be between 50 and 650 pixels, got 10.
 ```
 
 ### Good to know

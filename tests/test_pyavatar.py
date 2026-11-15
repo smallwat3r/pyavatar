@@ -55,29 +55,29 @@ def test_raise_size_property_validation() -> None:
     with pytest.raises(RenderingSizeError) as excinfo:
         PyAvatar("smallwat3r", size=SupportedPixelRange.MAX + 1)
 
-    assert str(excinfo.value) == ("651 -> Size must fit within range "
-                                  "min=50 max=650.")
+    assert str(excinfo.value) == ("Size must be between 50 and 650 pixels, "
+                                  "got 651.")
+    assert excinfo.value.value == 651
 
     with pytest.raises(RenderingSizeError) as excinfo:
         PyAvatar("smallwat3r", size=SupportedPixelRange.MIN - 1)
 
-    assert str(excinfo.value) == ("49 -> Size must fit within range "
-                                  "min=50 max=650.")
+    assert str(excinfo.value) == ("Size must be between 50 and 650 pixels, "
+                                  "got 49.")
 
 
 def test_fontpath_property_validation() -> None:
     with pytest.raises(FontpathError) as excinfo:
         PyAvatar("smallwat3r", fontpath="idonotexist.ttf")
 
-    assert str(excinfo.value) == ("idonotexist.ttf -> Cannot find a font "
-                                  "file at this location.")
+    assert str(excinfo.value) == ("Cannot find a font file at "
+                                  "'idonotexist.ttf'.")
 
     with pytest.raises(FontExtensionNotSupportedError) as excinfo:
         PyAvatar("smallwar3r", fontpath=__file__)
 
-    assert str(excinfo.value) == ("test_pyavatar.py -> Font file extension "
-                                  "not supported. Supported extensions: "
-                                  ".ttf, .otf.")
+    assert str(excinfo.value) == ("Unsupported font file 'test_pyavatar.py', "
+                                  "expected one of: .ttf, .otf.")
 
 
 def test_avatar_change_color() -> None:
@@ -105,9 +105,8 @@ def test_save_avatar_locally() -> None:
         with pytest.raises(ImageExtensionNotSupportedError) as excinfo:
             avatar.save(f"{temp_dir}/test.nope")
 
-        assert str(excinfo.value) == ("test.nope -> Image extension not "
-                                      "supported. Supported formats: "
-                                      "png, jpeg, ico, svg.")
+        assert str(excinfo.value) == ("Unsupported image format 'test.nope', "
+                                      "expected one of: png, jpeg, ico, svg.")
 
 
 def test_stream_avatar() -> None:
@@ -118,9 +117,8 @@ def test_stream_avatar() -> None:
     with pytest.raises(ImageExtensionNotSupportedError) as excinfo:
         avatar.stream("unknown")
 
-    assert str(excinfo.value) == ("unknown -> Image extension not "
-                                  "supported. Supported formats: "
-                                  "png, jpeg, ico, svg.")
+    assert str(excinfo.value) == ("Unsupported image format 'unknown', "
+                                  "expected one of: png, jpeg, ico, svg.")
 
 
 @pytest.mark.parametrize("format", tuple(SupportedImageFmt))
@@ -228,26 +226,26 @@ def test_color_validation() -> None:
     # Invalid hex colors
     with pytest.raises(InvalidColorError) as excinfo:
         PyAvatar("test", color="FFF")
-    assert "Hex color must be in format" in str(excinfo.value)
+    assert "expected '#RGB' or '#RRGGBB'" in str(excinfo.value)
 
     for invalid in ("#FF", "#GGG", "#12345G", ""):
         with pytest.raises(InvalidColorError) as excinfo:
             PyAvatar("test", color=invalid)
-        assert "Hex color must be in format" in str(excinfo.value)
+        assert "expected '#RGB' or '#RRGGBB'" in str(excinfo.value)
 
     # Invalid RGB colors
     with pytest.raises(InvalidColorError) as excinfo:
         PyAvatar("test", color=(256, 0, 0))
-    assert "RGB color must be a tuple of 3 integers" in str(excinfo.value)
+    assert "expected a tuple of 3 integers" in str(excinfo.value)
 
     with pytest.raises(InvalidColorError) as excinfo:
         PyAvatar("test", color=(0, 0))
-    assert "RGB color must be a tuple of 3 integers" in str(excinfo.value)
+    assert "expected a tuple of 3 integers" in str(excinfo.value)
 
     # Invalid type
     with pytest.raises(InvalidColorError) as excinfo:
         PyAvatar("test", color=123)
-    assert "Color must be a hex string or RGB tuple" in str(excinfo.value)
+    assert "expected a hex string or an RGB tuple" in str(excinfo.value)
 
 
 def test_corrupted_font_file() -> None:
@@ -345,3 +343,11 @@ def test_unprintable_text_falls_back_to_placeholder(text: str) -> None:
     avatar = PyAvatar(text)
     assert avatar.text == "?"
     assert avatar.stream("svg").startswith(b"<svg ")
+
+
+def test_errors_survive_pickling() -> None:
+    import pickle
+
+    with pytest.raises(RenderingSizeError) as excinfo:
+        PyAvatar("smallwat3r", size=10)
+    assert str(pickle.loads(pickle.dumps(excinfo.value))) == str(excinfo.value)

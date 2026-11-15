@@ -40,16 +40,16 @@ __all__ = ("PyAvatar",
 
 
 class PyAvatarError(Exception):
-    """Base PyAvatar error."""
+    """Base PyAvatar error.
 
-    def __init__(self, value: str, message: str = "", info: str = "") -> None:
+    :param message: Human readable description of the error.
+    :param value: (optional) The value that was rejected.
+    """
+
+    def __init__(self, message: str, value: object = None) -> None:
+        self.message = message
         self.value = value
-        self.message = message or self.__doc__
-        self.info = info
-        super().__init__(self.message)
-
-    def __str__(self) -> str:
-        return f"{self.value} -> {self.message} {self.info}".strip()
+        super().__init__(message)
 
 
 class RenderingSizeError(PyAvatarError):
@@ -135,9 +135,8 @@ def _image_format(value: str, label: str | None = None) -> SupportedImageFmt:
         return SupportedImageFmt(_FORMAT_ALIASES.get(name, name))
     except ValueError:
         raise ImageExtensionNotSupportedError(
-            str(label or value),
-            info=f"Supported formats: {', '.join(SupportedImageFmt)}."
-        ) from None
+            f"Unsupported image format {label or value!r}, expected one of: "
+            f"{', '.join(SupportedImageFmt)}.", value) from None
 
 
 def _glyph_outline(fontpath: str, char: str
@@ -166,8 +165,8 @@ def _glyph_outline(fontpath: str, char: str
             glyph.draw(bounds_pen)
             units_per_em = font["head"].unitsPerEm
     except (OSError, TTLibError, KeyError, AttributeError) as e:
-        raise FontLoadError(fontpath,
-                            message="Failed to load font file.") from e
+        raise FontLoadError(f"Failed to load font file {fontpath!r}.",
+                            fontpath) from e
     return (path_pen.getCommands(),
             bounds_pen.bounds or (0, 0, 0, 0),
             units_per_em)
@@ -254,10 +253,9 @@ class PyAvatar:
         if not isinstance(value, int):
             raise TypeError("Attribute `size` must be an integer.")
         if value < SupportedPixelRange.MIN or value > SupportedPixelRange.MAX:
-            raise RenderingSizeError(str(value),
-                                     ("Size must fit within range "
-                                      f"min={SupportedPixelRange.MIN} "
-                                      f"max={SupportedPixelRange.MAX}."))
+            raise RenderingSizeError(
+                f"Size must be between {SupportedPixelRange.MIN.value} and "
+                f"{SupportedPixelRange.MAX.value} pixels, got {value}.", value)
         self._size = value
         self._image = None
 
@@ -270,11 +268,12 @@ class PyAvatar:
         if not isinstance(value, str):
             raise TypeError("Attribute `fontpath` must be a string.")
         if not os.path.isfile(value):
-            raise FontpathError(value)
+            raise FontpathError(f"Cannot find a font file at {value!r}.",
+                                value)
         if not value.lower().endswith(tuple(SupportedFontExt)):
             raise FontExtensionNotSupportedError(
-                os.path.basename(value),
-                info=f"Supported extensions: {', '.join(SupportedFontExt)}.")
+                f"Unsupported font file {os.path.basename(value)!r}, "
+                f"expected one of: {', '.join(SupportedFontExt)}.", value)
         self._fontpath = value
         self._image = None
 
@@ -287,18 +286,18 @@ class PyAvatar:
         if isinstance(value, str):
             if not _HEX_COLOR.fullmatch(value):
                 raise InvalidColorError(
-                    value,
-                    message="Hex color must be in format '#RGB' or '#RRGGBB'.")
+                    f"Invalid hex color {value!r}, expected '#RGB' or "
+                    "'#RRGGBB'.", value)
         elif isinstance(value, tuple):
             if len(value) != 3 or not all(
                     isinstance(c, int) and 0 <= c <= 255 for c in value):
                 raise InvalidColorError(
-                    str(value),
-                    message="RGB color must be a tuple of 3 integers (0-255).")
+                    f"Invalid RGB color {value!r}, expected a tuple of 3 "
+                    "integers between 0 and 255.", value)
         else:
             raise InvalidColorError(
-                str(value),
-                message="Color must be a hex string or RGB tuple.")
+                f"Invalid color {value!r}, expected a hex string or an RGB "
+                "tuple.", value)
         self._color = value
         self._image = None
 
@@ -331,8 +330,9 @@ class PyAvatar:
             font = ImageFont.truetype(self.fontpath,
                                       size=int(_FONT_SIZE_RATIO * size))
         except OSError as e:
-            raise FontLoadError(self.fontpath,
-                                message="Failed to load font file.") from e
+            raise FontLoadError(
+                f"Failed to load font file {self.fontpath!r}.",
+                self.fontpath) from e
         draw = ImageDraw.Draw(image)
         left, top, right, bottom = draw.textbbox((0, 0), self.text, font)
         position = ((size - left - right) / 2, (size - top - bottom) / 2)
