@@ -11,12 +11,16 @@ user avatars to use in a web application or elsewhere.
 
 import os
 import random
+import re
 from base64 import b64encode
+from colorsys import hls_to_rgb
 from enum import Enum, IntEnum
+from hashlib import sha256
+from html import escape
 from io import BytesIO
 from typing import TypeAlias
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageColor, ImageDraw, ImageFont
 
 from ._version import __version__
 
@@ -29,6 +33,9 @@ __all__ = ("PyAvatar",
            "ImageExtensionNotSupportedError",
            "InvalidColorError",
            "FontLoadError",
+           "SupportedImageFmt",
+           "SupportedFontExt",
+           "SupportedPixelRange",
            )
 
 
@@ -69,15 +76,20 @@ class FontLoadError(PyAvatarError):
     """Failed to load font file."""
 
 
-def csv(str_enum: type[Enum]) -> str:
-    assert issubclass(str_enum, str) and issubclass(str_enum, Enum)
-    return ", ".join(list(str_enum))
-
-
 class SupportedImageFmt(str, Enum):
+    """Supported output formats.
+
+    ICO files cannot hold images larger than 256x256, bigger avatars are
+    scaled down to that size when written as ICO.
+
+    SVG output needs the optional fonttools dependency, installed with
+    `pip install pyavatar[svg]`.
+    """
+
     PNG = "png"
     JPEG = "jpeg"
     ICO = "ico"
+    SVG = "svg"
 
 
 class SupportedFontExt(str, Enum):
@@ -93,19 +105,85 @@ class SupportedPixelRange(IntEnum):
 _DEFAULT_IMAGE_SIZE = 120
 _DEFAULT_FONT_FILEPATH = os.path.join(os.path.dirname(__file__),
                                       "font/Lora.ttf")
+_FALLBACK_TEXT = "?"
+_DEFAULT_LIGHTNESS = 0.5
+_DEFAULT_SATURATION = 0.65
+_HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}){1,2}")
+_FORMAT_ALIASES = {"jpg": "jpeg"}
+_MIME_TYPES = {SupportedImageFmt.ICO: "image/x-icon",
+               SupportedImageFmt.SVG: "image/svg+xml"}
+_FONT_SIZE_RATIO = 0.6
+_SVG_TEMPLATE = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}"'
+    ' viewBox="0 0 {size} {size}" role="img" aria-label="{label}">'
+    '<rect width="100%" height="100%" fill="{background}"/>'
+    # the outline is in font units with the y axis pointing up, hence the flip
+    '<path transform="translate({x:.2f} {y:.2f}) scale({scale:.5f} '
+    '-{scale:.5f})" fill="{fill}" d="{outline}"/></svg>')
+# Perceived brightness (0-255) above which the letter is drawn in black
+# rather than white, roughly where white text drops under a 3:1 contrast.
+_LIGHT_BACKGROUND_THRESHOLD = 150
 
 _HexColor: TypeAlias = str
 _RGBColor: TypeAlias = tuple[int, int, int]
 
 
+def _image_format(value: str, label: str | None = None) -> SupportedImageFmt:
+    """Resolve a format name or file extension, case insensitive."""
+    name = value.lower() if isinstance(value, str) else ""
+    try:
+        return SupportedImageFmt(_FORMAT_ALIASES.get(name, name))
+    except ValueError:
+        raise ImageExtensionNotSupportedError(
+            str(label or value),
+            info=f"Supported formats: {', '.join(SupportedImageFmt)}."
+        ) from None
+
+
+def _glyph_outline(fontpath: str, char: str
+                   ) -> tuple[str, tuple[float, float, float, float], int]:
+    """Read the outline of a character from a font file.
+
+    Returns the SVG path data and its bounding box (x_min, y_min, x_max,
+    y_max), both in font units, and the number of font units per em.
+    """
+    try:
+        from fontTools.pens.boundsPen import BoundsPen
+        from fontTools.pens.svgPathPen import SVGPathPen
+        from fontTools.ttLib import TTFont, TTLibError
+    except ImportError as e:
+        raise ImportError("SVG output requires fonttools, install it with "
+                          "`pip install pyavatar[svg]`.") from e
+    try:
+        with TTFont(fontpath, lazy=True) as font:
+            glyphs = font.getGlyphSet()
+            # same as the raster output, unknown characters get the font's
+            # 'missing glyph' box
+            glyph = glyphs[font.getBestCmap().get(ord(char), ".notdef")]
+            path_pen = SVGPathPen(glyphs, ntos="{:g}".format)
+            glyph.draw(path_pen)
+            bounds_pen = BoundsPen(glyphs)
+            glyph.draw(bounds_pen)
+            units_per_em = font["head"].unitsPerEm
+    except (OSError, TTLibError, KeyError, AttributeError) as e:
+        raise FontLoadError(fontpath,
+                            message="Failed to load font file.") from e
+    return (path_pen.getCommands(),
+            bounds_pen.bounds or (0, 0, 0, 0),
+            units_per_em)
+
+
 class PyAvatar:
     """Generate a default avatar from a given string input.
 
-    :param text: Input text to use in the avatar.
+    :param text: Input text to use in the avatar, only its first character
+        is drawn. Falls back to '?' when the text is blank.
     :param size: (optional) Integer, size in pixel of the avatar.
     :param fontpath: (optional) Filepath to the font file to use.
     :param color: (optional) Background color as hex string ('#RGB' or
-        '#RRGGBB') or RGB tuple (r, g, b) with values 0-255.
+        '#RRGGBB') or RGB tuple (r, g, b) with values 0-255. Defaults to a
+        color derived from the text, so a given text always gets the same
+        avatar.
     :type color: str or tuple[int, int, int]
     :param capitalize: (optional) Boolean, capitalize the first letter.
     :type capitalize: bool
@@ -114,7 +192,7 @@ class PyAvatar:
       >>> from pyavatar import PyAvatar
       >>> avatar = PyAvatar("smallwat3r", size=250)
       >>> avatar.color
-      (191, 91, 81)
+      (91, 45, 210)
       >>> avatar.change_color()
       >>> avatar.color
       (203, 22, 126)
@@ -132,16 +210,23 @@ class PyAvatar:
                  fontpath: str = _DEFAULT_FONT_FILEPATH,
                  color: _HexColor | _RGBColor | None = None,
                  capitalize: bool = True):
+        self._image: Image.Image | None = None
+        self._capitalize = capitalize
         self.text = text
-        if capitalize:
-            self.text = text.upper()
         self.size = size
         self.fontpath = fontpath
-        self.color = color or self._random_color()
-        self.image = self.__generate_avatar()
+        self.color = self._default_color(text) if color is None else color
+        self._image = self._render()  # fail early on an unusable font
 
     def __str__(self) -> str:
         return f"{self.text} {self.size}x{self.size} {self.color}"
+
+    @property
+    def image(self) -> Image.Image:
+        """The rendered avatar, redrawn after any attribute change."""
+        if self._image is None:
+            self._image = self._render()
+        return self._image
 
     @property
     def text(self) -> str:
@@ -151,7 +236,14 @@ class PyAvatar:
     def text(self, value: str) -> None:
         if not isinstance(value, str):
             raise TypeError("Attribute `text` must be a string.")
-        self._text = value[0]  # only care about the first character
+        # only care about the first visible character
+        char = value.strip()[:1]
+        # control characters cannot be drawn, and are not valid in SVG
+        if not char.isprintable() or not char:
+            char = _FALLBACK_TEXT
+        # upper() can return several characters, 'ß' becomes 'SS'
+        self._text = char.upper()[:1] if self._capitalize else char
+        self._image = None
 
     @property
     def size(self) -> int:
@@ -167,6 +259,7 @@ class PyAvatar:
                                       f"min={SupportedPixelRange.MIN} "
                                       f"max={SupportedPixelRange.MAX}."))
         self._size = value
+        self._image = None
 
     @property
     def fontpath(self) -> str:
@@ -176,13 +269,14 @@ class PyAvatar:
     def fontpath(self, value: str) -> None:
         if not isinstance(value, str):
             raise TypeError("Attribute `fontpath` must be a string.")
-        if not os.path.exists(value):
+        if not os.path.isfile(value):
             raise FontpathError(value)
         if not value.lower().endswith(tuple(SupportedFontExt)):
             raise FontExtensionNotSupportedError(
                 os.path.basename(value),
-                info=f"Supported extensions: {csv(SupportedFontExt)}.")
+                info=f"Supported extensions: {', '.join(SupportedFontExt)}.")
         self._fontpath = value
+        self._image = None
 
     @property
     def color(self) -> _HexColor | _RGBColor:
@@ -191,7 +285,7 @@ class PyAvatar:
     @color.setter
     def color(self, value: _HexColor | _RGBColor) -> None:
         if isinstance(value, str):
-            if not value.startswith("#") or len(value) not in (4, 7):
+            if not _HEX_COLOR.fullmatch(value):
                 raise InvalidColorError(
                     value,
                     message="Hex color must be in format '#RGB' or '#RRGGBB'.")
@@ -206,6 +300,7 @@ class PyAvatar:
                 str(value),
                 message="Color must be a hex string or RGB tuple.")
         self._color = value
+        self._image = None
 
     @staticmethod
     def _random_color() -> _RGBColor:
@@ -213,69 +308,113 @@ class PyAvatar:
                 random.randint(0, 255),
                 random.randint(0, 255))
 
-    def __generate_avatar(self) -> Image.Image:
-        image = Image.new(mode="RGB",
-                          size=(self.size, self.size),
-                          color=self.color)
+    @staticmethod
+    def _default_color(text: str) -> _RGBColor:
+        # hashlib rather than hash(), which is salted per process. Only the
+        # hue varies, so every text gets an equally vivid color.
+        digest = sha256(text.encode("utf-8", "replace")).digest()
+        hue = int.from_bytes(digest[:2], "big") / 0x10000
+        r, g, b = hls_to_rgb(hue, _DEFAULT_LIGHTNESS, _DEFAULT_SATURATION)
+        return round(r * 255), round(g * 255), round(b * 255)
+
+    def _text_color(self) -> str:
+        color = self.color
+        r, g, b = (ImageColor.getrgb(color)[:3]
+                   if isinstance(color, str) else color)
+        brightness = (299 * r + 587 * g + 114 * b) / 1000
+        return "black" if brightness > _LIGHT_BACKGROUND_THRESHOLD else "white"
+
+    def _render(self) -> Image.Image:
+        size = self.size
+        image = Image.new(mode="RGB", size=(size, size), color=self.color)
         try:
-            font = ImageFont.truetype(self.fontpath, size=int(0.6 * self.size))
+            font = ImageFont.truetype(self.fontpath,
+                                      size=int(_FONT_SIZE_RATIO * size))
         except OSError as e:
             raise FontLoadError(self.fontpath,
                                 message="Failed to load font file.") from e
         draw = ImageDraw.Draw(image)
-        _, _, w_txt, h_txt = draw.textbbox((0, 0), self.text, font)
-        off_x, off_y, _, _ = font.getbbox(self.text)
-        position = ((self.size / 2 - (w_txt + off_x) / 2),
-                    (self.size / 2 - (h_txt + off_y) / 2))
-        draw.text(position, self.text, font=font)
+        left, top, right, bottom = draw.textbbox((0, 0), self.text, font)
+        position = ((size - left - right) / 2, (size - top - bottom) / 2)
+        draw.text(position, self.text, font=font, fill=self._text_color())
         return image
 
     def change_color(self, color: _HexColor | _RGBColor | None = None) -> None:
-        """Redraw the avatar with a new background color.
+        """Change the background color, picks a random one by default.
 
         :param color: (optional) Background color as hex string ('#RGB' or
             '#RRGGBB') or RGB tuple (r, g, b) with values 0-255.
         :type color: str or tuple[int, int, int]
         """
-        self.color = color or self._random_color()
-        self.image = self.__generate_avatar()
+        self.color = self._random_color() if color is None else color
+
+    def svg(self) -> str:
+        """Render the avatar as an SVG document.
+
+        The letter is embedded as the outline of its glyph in the font, so
+        it looks the same on every device and stays sharp at any size.
+        Requires fonttools, installed with `pip install pyavatar[svg]`.
+
+        :rtype: str
+        """
+        size = self.size
+        color = self.color
+        background = (color if isinstance(color, str)
+                      else "#{:02x}{:02x}{:02x}".format(*color))
+        outline, bounds, units_per_em = _glyph_outline(self.fontpath,
+                                                       self.text)
+        x_min, y_min, x_max, y_max = bounds
+        scale = int(_FONT_SIZE_RATIO * size) / units_per_em
+        return _SVG_TEMPLATE.format(
+            size=size,
+            label=escape(self.text),
+            background=background,
+            # centre the bounding box of the letter in the square
+            x=size / 2 - scale * (x_min + x_max) / 2,
+            y=size / 2 + scale * (y_min + y_max) / 2,
+            scale=scale,
+            fill=self._text_color(),
+            outline=outline)
 
     def save(self, filepath: str) -> None:
         """Save the avatar under a given file path.
 
-        :param filepath: Filepath where the avatar will be saved.
+        :param filepath: Filepath where the avatar will be saved, its
+            extension picks the format (png, jpeg, jpg, ico or svg).
         """
-        extension = os.path.splitext(filepath)[1].lstrip(".")
-        if extension not in set(SupportedImageFmt):
-            raise ImageExtensionNotSupportedError(
-                os.path.basename(filepath),
-                info=f"Supported formats: {csv(SupportedImageFmt)}.")
+        filename = os.path.basename(filepath)
+        extension = os.path.splitext(filename)[1].lstrip(".")
+        fmt = _image_format(extension, label=filename)
         directory = os.path.dirname(filepath)
         if directory:
             os.makedirs(directory, exist_ok=True)
-        self.image.save(filepath, optimize=True)
+        with open(filepath, "wb") as f:
+            f.write(self.stream(fmt))
 
     def stream(self,
-               filetype: SupportedImageFmt = SupportedImageFmt.PNG) -> bytes:
+               filetype: SupportedImageFmt | str = SupportedImageFmt.PNG
+               ) -> bytes:
         """Save the avatar in a bytes array.
 
         :param filetype: (optional) Avatar file format.
         :rtype: bytes
         """
-        if filetype.lower() not in set(SupportedImageFmt):
-            raise ImageExtensionNotSupportedError(
-                filetype, info=f"Supported formats: {csv(SupportedImageFmt)}.")
+        fmt = _image_format(filetype)
+        if fmt is SupportedImageFmt.SVG:
+            return self.svg().encode("utf-8")
         stream = BytesIO()
-        self.image.save(stream, format=filetype.value, optimize=True)
+        self.image.save(stream, format=fmt.value, optimize=True)
         return stream.getvalue()
 
     def base64_image(self,
-                     filetype: SupportedImageFmt = SupportedImageFmt.PNG
+                     filetype: SupportedImageFmt | str = SupportedImageFmt.PNG
                      ) -> str:
-        """Save the avatar as a base64 image.
+        """Save the avatar as a base64 data URI.
 
         :param filetype: (optional) Avatar file format.
         :rtype: str
         """
-        encoded_image = b64encode(self.stream(filetype)).decode("utf-8")
-        return f"data:image/{filetype.value};base64,{encoded_image}"
+        fmt = _image_format(filetype)
+        mime_type = _MIME_TYPES.get(fmt, f"image/{fmt.value}")
+        encoded_image = b64encode(self.stream(fmt)).decode("ascii")
+        return f"data:{mime_type};base64,{encoded_image}"
