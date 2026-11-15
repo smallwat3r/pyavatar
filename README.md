@@ -14,7 +14,6 @@
 
 <p align="center">
   <a href="https://pypi.org/project/pyavatar"><img src="https://img.shields.io/pypi/v/pyavatar.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/pyavatar"><img src="https://img.shields.io/pypi/pyversions/pyavatar.svg" alt="Supported Python versions"></a>
   <a href="https://github.com/smallwat3r/pyavatar/actions/workflows/ci.yml"><img src="https://github.com/smallwat3r/pyavatar/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="https://codecov.io/gh/smallwat3r/pyavatar"><img src="https://codecov.io/gh/smallwat3r/pyavatar/branch/master/graph/badge.svg" alt="Coverage"></a>
   <a href="https://github.com/smallwat3r/pyavatar/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT licence"></a>
