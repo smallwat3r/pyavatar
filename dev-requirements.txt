@@ -1,7 +1,0 @@
-mypy
-ruff
-twine
-wheel
-yapf
-pytest
-pytest-cov

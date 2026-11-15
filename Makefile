@@ -15,7 +15,7 @@ clean:  ## Clean repo
 
 VENV          = .venv
 VENV_PYTHON   = $(VENV)/bin/python
-SYSTEM_PYTHON = $(or $(shell which python3.10), $(shell which python))
+SYSTEM_PYTHON = $(or $(shell which python3), $(shell which python))
 PYTHON        = $(or $(wildcard $(VENV_PYTHON)), $(SYSTEM_PYTHON))
 
 $(VENV_PYTHON):
@@ -28,7 +28,7 @@ venv: $(VENV_PYTHON)  ## Create a Python virtual environment
 .PHONY: deps
 deps:  ## Install Python requirements in virtual environment
 	$(PYTHON) -m pip install --upgrade pip
-	$(PYTHON) -m pip install -r requirements.txt -r dev-requirements.txt
+	$(PYTHON) -m pip install -e .[dev]
 
 .PHONY: ci
 ci: tests ruff mypy  ## Run all checks (tests, ruff, mypy etc.)
@@ -46,15 +46,15 @@ yapf:  ## Format python code with yapf
 .PHONY: ruff
 ruff:  ## Run ruff
 	@echo "Running Ruff report..."
-	$(PYTHON) -m ruff $(SRC_DIR) $(TEST_DIR)
+	$(PYTHON) -m ruff check $(SRC_DIR) $(TEST_DIR)
 
 .PHONY: mypy
 mypy:  ## Run mypy
 	@echo "Running Mypy report..."
-	$(PYTHON) -m mypy --ignore-missing-imports $(SRC_DIR)
+	$(PYTHON) -m mypy $(SRC_DIR)
 
 .PHONY: release
 release:  ## Release to Pypi
-	rm -rf dist pyavatar.egg_info || true
-	$(PYTHON) setup.py sdist bdist_wheel
+	rm -rf dist build *.egg-info
+	$(PYTHON) -m build
 	$(PYTHON) -m twine upload dist/*
