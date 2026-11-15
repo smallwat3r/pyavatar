@@ -3,5 +3,11 @@ updates:
 - package-ecosystem: pip
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
+  # a library, only move the lower bounds when a release breaks them
+  versioning-strategy: increase-if-necessary
   open-pull-requests-limit: 5
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly

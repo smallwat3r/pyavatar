@@ -1,3 +1,54 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyavatar"
+dynamic = ["version"]
+description = "Generate simple user avatars from an input string."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Matthieu Petiteau", email = "mpetiteau.pro@gmail.com" }]
+keywords = ["avatar"]
+requires-python = ">=3.10"
+dependencies = ["Pillow>=10.3.0"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+svg = ["fonttools>=4.40.0"]
+dev = [
+    "build",
+    "fonttools",
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "twine",
+    "yapf",
+]
+
+[project.urls]
+Homepage = "https://github.com/smallwat3r/pyavatar"
+
+[tool.setuptools]
+packages = ["pyavatar"]
+
+[tool.setuptools.dynamic]
+version = { attr = "pyavatar._version.__version__" }
+
+[tool.setuptools.package-data]
+pyavatar = ["font/*.ttf", "py.typed"]
+
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true
@@ -5,12 +56,11 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [tool.ruff]
-select = ["E", "F"]
-fixable = ["ALL"]
-exclude = [".eggs", ".git", ".mypy_cache", ".ruff_cache", "venv"]
-per-file-ignores = {}
 line-length = 79
 target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F"]
 
 [tool.yapf]
 split_before_logical_operator = true
@@ -40,4 +90,4 @@ exclude_also = [
 ]
 
 [tool.coverage.run]
-source = ["."]
+source = ["pyavatar"]
